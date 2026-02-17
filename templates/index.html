@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAW Photo Batch Processor</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app">
+        <header>
+            <h1>RAW Photo Processor</h1>
+            <p class="subtitle">Canon CR3 Batch Processing for Landscape Lighting Photos</p>
+        </header>
+
+        <main>
+            <!-- Upload Zone -->
+            <section class="upload-zone" id="uploadZone">
+                <div class="upload-content">
+                    <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <p>Drag & drop CR3 files here</p>
+                    <p class="upload-hint">or click to browse</p>
+                    <input type="file" id="fileInput" multiple accept=".cr3,.cr2,.nef,.arw,.dng" hidden>
+                </div>
+            </section>
+
+            <!-- Main Content Area -->
+            <div class="content-area">
+                <!-- Preview Panel -->
+                <section class="preview-panel">
+                    <div class="preview-header">
+                        <label class="compare-toggle">
+                            <input type="checkbox" id="compareToggle">
+                            <span>Before/After</span>
+                        </label>
+                    </div>
+                    <div class="preview-container" id="previewContainer">
+                        <div class="preview-placeholder" id="previewPlaceholder">
+                            <p>Upload an image to preview</p>
+                        </div>
+
+                        <!-- Standard preview (when compare is off) -->
+                        <img id="previewImage" class="preview-image" alt="Preview" style="display: none;">
+
+                        <!-- Comparison slider (when compare is on) -->
+                        <div class="comparison-container" id="comparisonContainer" style="display: none;">
+                            <div class="comparison-wrapper">
+                                <img id="afterImage" class="comparison-image" alt="After">
+                                <div class="comparison-before" id="comparisonBefore">
+                                    <img id="beforeImage" class="comparison-image" alt="Before">
+                                </div>
+                                <div class="comparison-slider" id="comparisonSlider">
+                                    <div class="comparison-handle">
+                                        <div class="handle-line"></div>
+                                        <div class="handle-circle">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <polyline points="15 18 9 12 15 6"/>
+                                                <polyline points="9 18 15 12 9 6" transform="translate(6,0)"/>
+                                            </svg>
+                                        </div>
+                                        <div class="handle-line"></div>
+                                    </div>
+                                </div>
+                                <div class="comparison-labels">
+                                    <span class="label-before">BEFORE</span>
+                                    <span class="label-after">AFTER</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="preview-loading" id="previewLoading" style="display: none;">
+                            <div class="spinner"></div>
+                            <p>Processing...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Controls Panel -->
+                <section class="controls-panel">
+                    <div class="controls-header">
+                        <h2>Adjustments</h2>
+                        <div class="preset-buttons">
+                            <button class="btn btn-preset" id="btnLandscapeLighting">
+                                Landscape Lighting
+                            </button>
+                            <button class="btn btn-secondary" id="btnReset">Reset</button>
+                        </div>
+                    </div>
+
+                    <div class="sliders">
+                        <div class="slider-group">
+                            <label>
+                                <span>Exposure</span>
+                                <span class="slider-value" id="exposureValue">1.00</span>
+                            </label>
+                            <input type="range" id="exposure" min="0.5" max="2" step="0.05" value="1">
+                        </div>
+
+                        <div class="slider-group">
+                            <label>
+                                <span>Warmth</span>
+                                <span class="slider-value" id="warmthValue">0.00</span>
+                            </label>
+                            <input type="range" id="warmth" min="-0.5" max="0.5" step="0.02" value="0">
+                        </div>
+
+                        <div class="slider-group">
+                            <label>
+                                <span>Contrast</span>
+                                <span class="slider-value" id="contrastValue">1.00</span>
+                            </label>
+                            <input type="range" id="contrast" min="0.5" max="2" step="0.05" value="1">
+                        </div>
+
+                        <div class="slider-group">
+                            <label>
+                                <span>Shadows</span>
+                                <span class="slider-value" id="shadowsValue">0.00</span>
+                            </label>
+                            <input type="range" id="shadows" min="0" max="1" step="0.05" value="0">
+                        </div>
+
+                        <div class="slider-group">
+                            <label>
+                                <span>Highlights</span>
+                                <span class="slider-value" id="highlightsValue">0.00</span>
+                            </label>
+                            <input type="range" id="highlights" min="0" max="1" step="0.05" value="0">
+                        </div>
+
+                        <div class="slider-group">
+                            <label>
+                                <span>Clarity</span>
+                                <span class="slider-value" id="clarityValue">0.00</span>
+                            </label>
+                            <input type="range" id="clarity" min="-0.5" max="0.5" step="0.05" value="0">
+                        </div>
+
+                        <div class="slider-group">
+                            <label>
+                                <span>Vibrance</span>
+                                <span class="slider-value" id="vibranceValue">0.00</span>
+                            </label>
+                            <input type="range" id="vibrance" min="-0.5" max="0.5" step="0.05" value="0">
+                        </div>
+
+                        <div class="slider-group">
+                            <label>
+                                <span>Vignette</span>
+                                <span class="slider-value" id="vignetteValue">0.00</span>
+                            </label>
+                            <input type="range" id="vignette" min="0" max="0.5" step="0.05" value="0">
+                        </div>
+
+                        <div class="slider-group">
+                            <label>
+                                <span>Sharpness</span>
+                                <span class="slider-value" id="sharpnessValue">1.00</span>
+                            </label>
+                            <input type="range" id="sharpness" min="0.5" max="3" step="0.1" value="1">
+                        </div>
+                    </div>
+
+                    <!-- File List -->
+                    <div class="file-list-section">
+                        <div class="file-list-header">
+                            <h3>Uploaded Files (<span id="fileCount">0</span>)</h3>
+                            <button class="btn btn-small" id="btnSelectAll">Select All</button>
+                        </div>
+                        <div class="file-list" id="fileList">
+                            <p class="file-list-empty">No files uploaded yet</p>
+                        </div>
+                    </div>
+
+                    <!-- Export Filename -->
+                    <div class="filename-section">
+                        <label for="exportFilename">Export filename</label>
+                        <div class="filename-input-wrapper">
+                            <input type="text" id="exportFilename" placeholder="e.g., garden-path-lights">
+                            <span class="filename-suffix">.jpg</span>
+                        </div>
+                        <p class="filename-hint">Leave blank to use original name. For batch: adds -01, -02, etc.</p>
+                    </div>
+
+                    <!-- Batch Actions -->
+                    <div class="batch-actions">
+                        <button class="btn btn-primary" id="btnExportSelected" disabled>
+                            Export Selected
+                        </button>
+                        <button class="btn btn-primary" id="btnExportAll" disabled>
+                            Export All
+                        </button>
+                    </div>
+
+                    <!-- Progress Bar -->
+                    <div class="progress-section" id="progressSection" style="display: none;">
+                        <div class="progress-header">
+                            <span id="progressStatus">Processing...</span>
+                            <span id="progressPercent">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <p class="progress-detail" id="progressDetail"></p>
+                    </div>
+
+                    <!-- Download Results -->
+                    <div class="download-section" id="downloadSection" style="display: none;">
+                        <h3>Export Complete</h3>
+                        <p id="downloadSummary"></p>
+                        <div class="download-links" id="downloadLinks"></div>
+                        <button class="btn btn-primary" id="btnDownloadAll">Download All</button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
